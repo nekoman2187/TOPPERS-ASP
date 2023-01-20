@@ -3,11 +3,9 @@
  *      Toyohashi Open Platform for Embedded Real-Time Systems/
  *      Advanced Standard Profile Kernel
  *
- *  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
- *                              Toyohashi Univ. of Technology, JAPAN
- *  Copyright (C) 2004-2010 by Embedded and Real-Time Systems Laboratory
- *              Graduate School of Information Science, Nagoya Univ., JAPAN
- *
+ *  Copyright (C) 2008-2010 by Witz Corporation, JAPAN
+ *  Copyright (C) 2022 wolfSSL Inc.
+ * 
  *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
  *  ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
  *  変・再配布（以下，利用と呼ぶ）することを無償で許諾する．
@@ -30,72 +28,53 @@
  *      また，本ソフトウェアのユーザまたはエンドユーザからのいかなる理
  *      由に基づく請求からも，上記著作権者およびTOPPERSプロジェクトを
  *      免責すること．
- * 
+ *
  *  本ソフトウェアは，無保証で提供されているものである．上記著作権者お
  *  よびTOPPERSプロジェクトは，本ソフトウェアに関して，特定の使用目的
  *  に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  *
- *  $Id: sample1.h 2416 2012-09-07 08:06:20Z ertl-hiro $
  */
 
 /*
- *		サンプルプログラム(1)のヘッダファイル
+ *		プロセッサ依存モジュール（RX72n用）
+ *
+ *  このインクルードファイルは，target_config.h（または，そこからインク
+ *  ルードされるファイル）のみからインクルードされる．他のファイルから
+ *  直接インクルードしてはならない．
  */
+
+
+#ifndef TOPPERS_RX72n_CONFIG_H
+#define TOPPERS_RX72n_CONFIG_H
+
+#define ARCH_RENESAS_RX72n
 
 /*
- *  ターゲット依存の定義
+ *  割込み要因数
  */
-#include "target_test.h"
+#define	INHNO_MAX	UINT_C( 256 )
+
 
 /*
- *  各タスクの優先度の定義
+ *  割込み制御用定義
  */
+#define	INVALID_OFFSET				( 0xFFU )
+#define	INTNO_IRQ( intno )			( ( 64U <= ( intno ) ) && ( ( intno ) <= 79U ) )
+#define	INTNO_IRQ_OFFSET( intno )	( ( intno ) - 64U )
+#define	IRQ_MAX						UINT_C( 16 )
 
-#define MAIN_PRIORITY	5		/* メインタスクの優先度 */
-								/* HIGH_PRIORITYより高くすること */
-
-#define HIGH_PRIORITY	9		/* 並行実行されるタスクの優先度 */
-#define MID_PRIORITY	10
-#define LOW_PRIORITY	11
-
-/*
- *  ターゲットに依存する可能性のある定数の定義
- */
-
-#ifndef TASK_PORTID
-#define	TASK_PORTID		1			/* 文字入力するシリアルポートID */
-#endif /* TASK_PORTID */
-
-#ifndef STACK_SIZE
-#define	STACK_SIZE		(4096 * 4)		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-#ifndef NET_STACK_SIZE
-#define	NET_STACK_SIZE		(1024 * 24) 		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-
-#ifndef LOOP_REF
-#define LOOP_REF		ULONG_C(1000000)	/* 速度計測用のループ回数 */
-#endif /* LOOP_REF */
-
-/*
- *  関数のプロトタイプ宣言
- */
 #ifndef TOPPERS_MACRO_ONLY
 
-extern void	task(intptr_t exinf);
-extern void	taskEther(intptr_t exinf);
-extern void	taskDemoWolf(intptr_t exinf);
-extern void	taskNetWork(intptr_t exinf);
+void set_icu_ipr(INTNO, uint8_t);
 
-extern void	main_task(intptr_t exinf);
+#endif
 
-extern void	tex_routine(TEXPTN texptn, intptr_t exinf);
-#ifdef CPUEXC1
-extern void	cpuexc_handler(void *p_excinf);
-#endif /* CPUEXC1 */
-extern void	cyclic_handler(intptr_t exinf);
-extern void	alarm_handler(intptr_t exinf);
+/*
+ *  プロセッサ依存モジュール（RX72n用）
+ */
+#include "rx_gcc/rx_common/prc_config.h"
 
-#endif /* TOPPERS_MACRO_ONLY */
+#endif	/* TOPPERS_RX72n_CONFIG_H */
+

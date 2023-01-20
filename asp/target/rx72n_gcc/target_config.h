@@ -5,8 +5,9 @@
  *
  *  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
  *                              Toyohashi Univ. of Technology, JAPAN
- *  Copyright (C) 2004-2010 by Embedded and Real-Time Systems Laboratory
+ *  Copyright (C) 2005-2007 by Embedded and Real-Time Systems Laboratory
  *              Graduate School of Information Science, Nagoya Univ., JAPAN
+ *  Copyright (C) 2008-2010 by Witz Corporation, JAPAN
  *
  *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
  *  ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
@@ -30,72 +31,104 @@
  *      また，本ソフトウェアのユーザまたはエンドユーザからのいかなる理
  *      由に基づく請求からも，上記著作権者およびTOPPERSプロジェクトを
  *      免責すること．
- * 
+ *
  *  本ソフトウェアは，無保証で提供されているものである．上記著作権者お
  *  よびTOPPERSプロジェクトは，本ソフトウェアに関して，特定の使用目的
  *  に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
  *
- *  $Id: sample1.h 2416 2012-09-07 08:06:20Z ertl-hiro $
  */
 
 /*
- *		サンプルプログラム(1)のヘッダファイル
+ *		ターゲット依存モジュール（RX72N用）
+ *
+ *  カーネルのターゲット依存部のインクルードファイル．kernel_impl.hのター
+ *  ゲット依存部の位置付けとなる．
  */
+
+#ifndef TOPPERS_TARGET_CONFIG_H
+#define TOPPERS_TARGET_CONFIG_H
 
 /*
- *  ターゲット依存の定義
+ *  ターゲットシステムのハードウェア資源の定義
  */
-#include "target_test.h"
+#include "target_board.h"
+
 
 /*
- *  各タスクの優先度の定義
+ *  デフォルトの非タスクコンテキスト用のスタック領域の定義
+ *
+ *  スタックサイズを変更する場合は, sectrx.incの_DEFAULT_ISTACK
+ *  ラベルの位置にある.blkb命令のサイズと, 以下DEFAULT_ISTKSZの
+ *  サイズを合わせて同じ値に変更すること.
  */
 
-#define MAIN_PRIORITY	5		/* メインタスクの優先度 */
-								/* HIGH_PRIORITYより高くすること */
+#ifndef TOPPERS_MACRO_ONLY
+extern uint32_t	DEFAULT_ISTACK[];
+#endif
 
-#define HIGH_PRIORITY	9		/* 並行実行されるタスクの優先度 */
-#define MID_PRIORITY	10
-#define LOW_PRIORITY	11
+#define DEFAULT_ISTKSZ		(0x1000U) 
+#define DEFAULT_ISTK		( (void *)&DEFAULT_ISTACK[0] )
+
 
 /*
- *  ターゲットに依存する可能性のある定数の定義
+ *  ターゲット依存の文字出力に使用するポートの定義
  */
+#define TARGET_PUTC_PORTID	( 1 )
 
-#ifndef TASK_PORTID
-#define	TASK_PORTID		1			/* 文字入力するシリアルポートID */
-#endif /* TASK_PORTID */
 
-#ifndef STACK_SIZE
-#define	STACK_SIZE		(4096 * 4)		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-#ifndef NET_STACK_SIZE
-#define	NET_STACK_SIZE		(1024 * 24) 		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-
-#ifndef LOOP_REF
-#define LOOP_REF		ULONG_C(1000000)	/* 速度計測用のループ回数 */
-#endif /* LOOP_REF */
-
-/*
- *  関数のプロトタイプ宣言
- */
 #ifndef TOPPERS_MACRO_ONLY
 
-extern void	task(intptr_t exinf);
-extern void	taskEther(intptr_t exinf);
-extern void	taskDemoWolf(intptr_t exinf);
-extern void	taskNetWork(intptr_t exinf);
+/*
+ *  ターゲットシステム依存の初期化
+ */
+extern void	target_initialize( void );
 
-extern void	main_task(intptr_t exinf);
-
-extern void	tex_routine(TEXPTN texptn, intptr_t exinf);
-#ifdef CPUEXC1
-extern void	cpuexc_handler(void *p_excinf);
-#endif /* CPUEXC1 */
-extern void	cyclic_handler(intptr_t exinf);
-extern void	alarm_handler(intptr_t exinf);
+/*
+ *  ターゲットシステムの終了
+ *
+ *  システムを終了する時に使う．
+ */
+extern void	target_exit( void )	NoReturn;
 
 #endif /* TOPPERS_MACRO_ONLY */
+
+
+/*
+ *  プロセッサ依存モジュール（RX72n用）
+ */
+#include "rx72n_config.h"
+
+
+/*
+ *  トレースログに関する設定
+ */
+#define TCNT_TRACE_BUFFER	( 32 )
+
+/*
+ *  トレースログ出力する箇所の選択
+ *    ログ出力する箇所を1で定義
+ *    ログ出力しない箇所を0で定義
+ */
+#ifdef TOPPERS_ENABLE_TRACE
+#define LOG_DSP_ENTER	( 1 )
+#define LOG_DSP_LEAVE	( 1 )
+#define LOG_INH_ENTER	( 0 )
+#define LOG_INH_LEAVE	( 0 )
+#define LOG_EXC_ENTER	( 0 )
+#define LOG_EXC_LEAVE	( 0 )
+#else
+#define LOG_DSP_ENTER	( 0 )
+#define LOG_DSP_LEAVE	( 0 )
+#define LOG_INH_ENTER	( 0 )
+#define LOG_INH_LEAVE	( 0 )
+#define LOG_EXC_ENTER	( 0 )
+#define LOG_EXC_LEAVE	( 0 )
+#endif
+
+#ifdef TOPPERS_ENABLE_TRACE
+#include "logtrace/trace_config.h"
+#endif /* TOPPERS_ENABLE_TRACE */
+
+#endif /* TOPPERS_TARGET_CONFIG_H */

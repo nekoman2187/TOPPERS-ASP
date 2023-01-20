@@ -1,13 +1,10 @@
 /*
- *  TOPPERS/ASP Kernel
- *      Toyohashi Open Platform for Embedded Real-Time Systems/
- *      Advanced Standard Profile Kernel
- *
- *  Copyright (C) 2000-2003 by Embedded and Real-Time Systems Laboratory
- *                              Toyohashi Univ. of Technology, JAPAN
- *  Copyright (C) 2004-2010 by Embedded and Real-Time Systems Laboratory
- *              Graduate School of Information Science, Nagoya Univ., JAPAN
- *
+ *  TOPPERS Software
+ *      Toyohashi Open Platform for Embedded Real-Time Systems
+ * 
+ *  Copyright (C) 2008-2010 by Witz Corporation, JAPAN
+ *  Copyright (C) 2015 by Hisashi Hata, JAPAN
+ * 
  *  上記著作権者は，以下の(1)〜(4)の条件を満たす場合に限り，本ソフトウェ
  *  ア（本ソフトウェアを改変したものを含む．以下同じ）を使用・複製・改
  *  変・再配布（以下，利用と呼ぶ）することを無償で許諾する．
@@ -36,66 +33,23 @@
  *  に対する適合性も含めて，いかなる保証も行わない．また，本ソフトウェ
  *  アの利用により直接的または間接的に生じたいかなる損害に関しても，そ
  *  の責任を負わない．
+ * 
+ */
+
+/*
+ *		t_stddef.hのプロセッサ依存部（RX72n用）from RX62n
  *
- *  $Id: sample1.h 2416 2012-09-07 08:06:20Z ertl-hiro $
+ *  このインクルードファイルは，target_stddef.h（または，そこからインク
+ *  ルードされるファイル）のみからインクルードされる．他のファイルから
+ *  直接インクルードしてはならない．
  */
+
+#ifndef TOPPERS_PRC_STDDEF_H
+#define TOPPERS_PRC_STDDEF_H
 
 /*
- *		サンプルプログラム(1)のヘッダファイル
+ *  ターゲットを識別するためのマクロの定義
  */
+#define TOPPERS_RX72N				/* プロセッサ略称 */
 
-/*
- *  ターゲット依存の定義
- */
-#include "target_test.h"
-
-/*
- *  各タスクの優先度の定義
- */
-
-#define MAIN_PRIORITY	5		/* メインタスクの優先度 */
-								/* HIGH_PRIORITYより高くすること */
-
-#define HIGH_PRIORITY	9		/* 並行実行されるタスクの優先度 */
-#define MID_PRIORITY	10
-#define LOW_PRIORITY	11
-
-/*
- *  ターゲットに依存する可能性のある定数の定義
- */
-
-#ifndef TASK_PORTID
-#define	TASK_PORTID		1			/* 文字入力するシリアルポートID */
-#endif /* TASK_PORTID */
-
-#ifndef STACK_SIZE
-#define	STACK_SIZE		(4096 * 4)		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-#ifndef NET_STACK_SIZE
-#define	NET_STACK_SIZE		(1024 * 24) 		/* タスクのスタックサイズ */
-#endif /* STACK_SIZE */
-
-#ifndef LOOP_REF
-#define LOOP_REF		ULONG_C(1000000)	/* 速度計測用のループ回数 */
-#endif /* LOOP_REF */
-
-/*
- *  関数のプロトタイプ宣言
- */
-#ifndef TOPPERS_MACRO_ONLY
-
-extern void	task(intptr_t exinf);
-extern void	taskEther(intptr_t exinf);
-extern void	taskDemoWolf(intptr_t exinf);
-extern void	taskNetWork(intptr_t exinf);
-
-extern void	main_task(intptr_t exinf);
-
-extern void	tex_routine(TEXPTN texptn, intptr_t exinf);
-#ifdef CPUEXC1
-extern void	cpuexc_handler(void *p_excinf);
-#endif /* CPUEXC1 */
-extern void	cyclic_handler(intptr_t exinf);
-extern void	alarm_handler(intptr_t exinf);
-
-#endif /* TOPPERS_MACRO_ONLY */
+#endif /* TOPPERS_PRC_STDDEF_H */
